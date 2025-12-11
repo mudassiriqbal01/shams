@@ -1,0 +1,3 @@
+EmployeeID,FirstName,LastName,Department,Role,StartDate,Salary
+E001,Alice,Johnson,Engineering,Developer,2022-03-01,90000
+E002,Bob,Williams,Sales,Manager,2021-06-15,95000

@@ -1,0 +1,12 @@
+{
+  "name": "shams-vision-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
