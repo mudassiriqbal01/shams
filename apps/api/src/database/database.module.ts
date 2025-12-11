@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import * as entities from './entities';
+import { ENTITIES } from './entities';
 
 @Module({
   imports: [
@@ -10,14 +10,14 @@ import * as entities from './entities';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
-        entities: Object.values(entities),
+        entities: ENTITIES,
         synchronize: false,
         logging: configService.get('NODE_ENV') === 'development',
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
       }),
     }),
-    TypeOrmModule.forFeature(Object.values(entities)),
+    TypeOrmModule.forFeature(ENTITIES),
   ],
   exports: [TypeOrmModule],
 })

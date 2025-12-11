@@ -100,7 +100,12 @@ export class RowsService {
     return this.enrichRowWithCalculatedColumns(row, columns);
   }
 
-  async findAll(moduleId: string, departmentId: string): Promise<Row[]> {
+  async findAll(
+    moduleId: string,
+    departmentId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<{ rows: Row[]; total: number }> {
     const module = await this.moduleRepository.findOne({
       where: { id: moduleId, departmentId },
     });
@@ -113,14 +118,18 @@ export class RowsService {
       where: { moduleId },
     });
 
-    const rows = await this.rowRepository.find({
+    const [rows, total] = await this.rowRepository.findAndCount({
       where: { moduleId },
       order: { createdAt: 'DESC' },
+      take: limit,
+      skip: offset,
     });
 
-    return rows.map((row) =>
+    const enrichedRows = rows.map((row) =>
       this.enrichRowWithCalculatedColumns(row, columns),
     );
+
+    return { rows: enrichedRows, total };
   }
 
   async update(
@@ -240,23 +249,16 @@ export class RowsService {
       (c) => c.type === ColumnType.FORMULA,
     );
 
-    const formulaMap = new Map(
-      formulaColumns.map((c) => ({
-        columnId: c.id,
-        formula: c.formula || '',
-      })).filter((f) => f.formula),
-    );
+    const formulaMap = new Map<string, { columnId: string; formula: string }>();
+    formulaColumns.forEach((c) => {
+      if (c.formula) {
+        formulaMap.set(c.id, { columnId: c.id, formula: c.formula });
+      }
+    });
 
     if (formulaMap.size > 0) {
       try {
-        const order = this.formulaEngine.resolveFormulaOrder(
-          new Map(
-            Array.from(formulaMap).map(([id, formula]) => [
-              id,
-              { formula, columnId: id },
-            ]),
-          ),
-        );
+        const order = this.formulaEngine.resolveFormulaOrder(formulaMap);
 
         for (const columnId of order) {
           const columnDef = formulaColumns.find((c) => c.id === columnId);

@@ -119,6 +119,8 @@ export class ImportService {
     }
 
     job.columnMapping = confirmImportDto.columnMapping;
+    job.duplicateHandling = confirmImportDto.duplicateHandling || 'IGNORE';
+    job.deduplicationColumns = confirmImportDto.deduplicationColumns || [];
     job.status = ImportJobStatus.VALIDATING;
 
     return this.importJobRepository.save(job);
@@ -132,7 +134,10 @@ export class ImportService {
   ): Promise<ImportJob> {
     const job = await this.getImportJob(id, moduleId, departmentId);
 
-    if (job.status !== ImportJobStatus.VALIDATING) {
+    if (
+      job.status !== ImportJobStatus.VALIDATING &&
+      job.status !== ImportJobStatus.IMPORTING
+    ) {
       throw new BadRequestException(
         `Cannot execute import with status: ${job.status}`,
       );
@@ -143,19 +148,32 @@ export class ImportService {
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     try {
       const csvRows = this.parseCSV(job.csvData || '');
-      const headers = csvRows[0] || [];
-      const columns = await this.columnRepository.find({
-        where: { moduleId },
-      });
+      const batchSize = 100;
+      let startRowIndex = 1;
 
-      const errors: Array<{ rowIndex: number; columnName: string; error: string }> = [];
-      let importedRows = 0;
+      // Resume capability
+      if (job.processedRows > 0) {
+        startRowIndex = job.processedRows + 1;
+      }
 
-      for (let i = 1; i < csvRows.length; i++) {
+      if (startRowIndex >= csvRows.length) {
+        job.status = ImportJobStatus.COMPLETED;
+        return this.importJobRepository.save(job);
+      }
+
+      const errors: Array<{
+        rowIndex: number;
+        columnName: string;
+        error: string;
+      }> = job.errors || [];
+      let importedRows = job.importedRows;
+
+      await queryRunner.startTransaction();
+
+      for (let i = startRowIndex; i < csvRows.length; i++) {
         const csvRow = csvRows[i];
         const values: Record<string, unknown> = {};
 
@@ -166,6 +184,37 @@ export class ImportService {
               mapping.csvColumnIndex < csvRow.length
             ) {
               values[mapping.moduleColumnId] = csvRow[mapping.csvColumnIndex];
+            }
+          }
+
+          // Duplicate Detection
+          if (job.deduplicationColumns && job.deduplicationColumns.length > 0) {
+            const query = queryRunner.manager
+              .getRepository(Row)
+              .createQueryBuilder('row')
+              .where('row.moduleId = :moduleId', { moduleId });
+
+            job.deduplicationColumns.forEach((colId, idx) => {
+              query.andWhere(`row.values ->> :colId${idx} = :val${idx}`, {
+                [`colId${idx}`]: colId,
+                [`val${idx}`]: values[colId],
+              });
+            });
+
+            const existingRow = await query.getOne();
+
+            if (existingRow) {
+              if (job.duplicateHandling === 'SKIP') {
+                job.processedRows = i;
+                continue;
+              } else if (job.duplicateHandling === 'UPDATE') {
+                existingRow.values = { ...existingRow.values, ...values };
+                await queryRunner.manager.save(existingRow);
+                job.processedRows = i;
+                continue;
+              } else if (job.duplicateHandling === 'ERROR') {
+                throw new Error('Duplicate row detected');
+              }
             }
           }
 
@@ -189,25 +238,25 @@ export class ImportService {
           job.failedRows += 1;
           job.processedRows = i;
         }
+
+        // Batch Commit
+        if (i % batchSize === 0) {
+          await queryRunner.commitTransaction();
+          job.errors = errors;
+          await this.importJobRepository.save(job);
+          await queryRunner.startTransaction();
+        }
       }
 
-      if (errors.length === 0) {
-        await queryRunner.commitTransaction();
-        job.status = ImportJobStatus.COMPLETED;
-        job.errors = [];
-      } else if (errors.length < csvRows.length - 1) {
-        await queryRunner.commitTransaction();
-        job.status = ImportJobStatus.COMPLETED;
-        job.errors = errors;
-        job.errorSummary = `${errors.length} of ${csvRows.length - 1} rows failed`;
-      } else {
-        await queryRunner.rollbackTransaction();
-        job.status = ImportJobStatus.ROLLED_BACK;
-        job.errors = errors;
-        job.errorSummary = 'All rows failed validation, import rolled back';
-      }
+      await queryRunner.commitTransaction();
+      job.status = ImportJobStatus.COMPLETED;
+      job.errors = errors;
+      job.errorSummary =
+        errors.length > 0 ? `${errors.length} rows failed` : undefined;
     } catch (error: any) {
-      await queryRunner.rollbackTransaction();
+      if (queryRunner.isTransactionActive) {
+        await queryRunner.rollbackTransaction();
+      }
       job.status = ImportJobStatus.FAILED;
       job.errorSummary = error.message;
     } finally {

@@ -1,4 +1,5 @@
-import { IsArray, IsNumber, IsString, IsOptional, ValidateNested, Type } from 'class-validator';
+import { IsArray, IsNumber, IsString, IsOptional, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ColumnMappingDto {
   @IsNumber()
@@ -25,4 +26,13 @@ export class ConfirmImportDto {
   @ValidateNested({ each: true })
   @Type(() => ColumnMappingDto)
   columnMapping: ColumnMappingDto[];
+
+  @IsOptional()
+  @IsString()
+  duplicateHandling?: 'IGNORE' | 'SKIP' | 'UPDATE' | 'ERROR';
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  deduplicationColumns?: string[];
 }

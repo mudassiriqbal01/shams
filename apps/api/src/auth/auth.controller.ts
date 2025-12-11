@@ -42,7 +42,7 @@ export class AuthController {
       throw new BadRequestException('Invalid refresh token');
     }
 
-    return this.authService.refreshToken(refreshToken, decoded.userId);
+    return this.authService.refreshToken(refreshToken, decoded.userId as string);
   }
 
   @Post('switch-department')

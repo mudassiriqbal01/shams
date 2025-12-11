@@ -1,7 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
+  Column as ORMColumn,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
@@ -24,37 +24,37 @@ export class Column {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid')
+  @ORMColumn('uuid')
   moduleId: string;
 
-  @Column()
+  @ORMColumn()
   name: string;
 
-  @Column({ nullable: true })
+  @ORMColumn({ nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', enum: ColumnType })
+  @ORMColumn({ type: 'varchar', enum: ColumnType })
   type: ColumnType;
 
-  @Column({ type: 'integer', default: 0, name: 'column_order' })
+  @ORMColumn({ type: 'integer', default: 0, name: 'column_order' })
   order: number;
 
-  @Column('jsonb', { default: {} })
+  @ORMColumn('jsonb', { default: {} })
   validationRules: Record<string, unknown>;
 
-  @Column('jsonb', { nullable: true })
+  @ORMColumn('jsonb', { nullable: true })
   options?: Record<string, unknown>;
 
-  @Column({ nullable: true })
+  @ORMColumn({ nullable: true })
   formula?: string;
 
-  @Column({ default: false })
+  @ORMColumn({ default: false })
   isRequired: boolean;
 
-  @Column({ default: true })
+  @ORMColumn({ default: true })
   isVisible: boolean;
 
-  @Column({ default: 1 })
+  @ORMColumn({ default: 1 })
   version: number;
 
   @CreateDateColumn()

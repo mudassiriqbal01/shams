@@ -41,10 +41,14 @@ export class RowsController {
   async findAll(
     @Param('moduleId') moduleId: string,
     @Request() req: { user: JwtPayload },
-  ): Promise<Row[]> {
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<{ rows: Row[]; total: number }> {
     return this.rowsService.findAll(
       moduleId,
       req.user.activeDepartmentId,
+      limit,
+      offset,
     );
   }
 

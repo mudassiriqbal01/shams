@@ -60,6 +60,12 @@ export class ImportJob {
     type?: string;
   }>;
 
+  @Column({ type: 'varchar', nullable: true })
+  duplicateHandling: 'IGNORE' | 'SKIP' | 'UPDATE' | 'ERROR';
+
+  @Column('jsonb', { nullable: true })
+  deduplicationColumns: string[];
+
   @Column('jsonb', { nullable: true })
   typeInference?: Record<string, unknown>;
 
