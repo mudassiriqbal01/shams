@@ -1,0 +1,119 @@
+.smart-grid-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.smart-grid-container.ag-theme-alpine-dark {
+  --ag-foreground-color: #ffffff;
+  --ag-background-color: #1a1a1a;
+  --ag-header-background-color: #2d2d2d;
+  --ag-odd-row-background-color: #2a2a2a;
+  --ag-row-hover-color: #3a3a3a;
+  --ag-selected-row-background-color: #4a5568;
+  --ag-border-color: #4a5568;
+}
+
+.smart-grid-container .ag-header-cell-label {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.smart-grid-container .ag-cell {
+  display: flex;
+  align-items: center;
+}
+
+.smart-grid-container .ag-row {
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.smart-grid-container .ag-row-even {
+  background-color: #2a2a2a;
+}
+
+.smart-grid-container .ag-row-odd {
+  background-color: #252525;
+}
+
+.smart-grid-container .ag-row:hover {
+  background-color: #3a3a3a;
+}
+
+.smart-grid-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #888;
+  background-color: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+}
+
+.smart-grid-empty p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.smart-grid-container .ag-header {
+  background-color: #2d2d2d;
+  border-bottom: 2px solid #4a5568;
+}
+
+.smart-grid-container .ag-header-cell {
+  border-right: 1px solid #4a5568;
+}
+
+.smart-grid-container .ag-header-cell:last-child {
+  border-right: none;
+}
+
+.smart-grid-container .ag-paging-panel {
+  background-color: #2d2d2d;
+  border-top: 1px solid #4a5568;
+  color: #ffffff;
+}
+
+/* Light theme support */
+.smart-grid-container.ag-theme-alpine {
+  --ag-foreground-color: #333333;
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f8f9fa;
+  --ag-odd-row-background-color: #f9f9f9;
+  --ag-row-hover-color: #e9ecef;
+  --ag-selected-row-background-color: #007bff;
+  --ag-border-color: #dee2e6;
+}
+
+.smart-grid-container.ag-theme-alpine .ag-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.smart-grid-container.ag-theme-alpine .ag-row {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.smart-grid-container.ag-theme-alpine .ag-row-even {
+  background-color: #f9f9f9;
+}
+
+.smart-grid-container.ag-theme-alpine .ag-row:hover {
+  background-color: #e9ecef;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .smart-grid-container {
+    border: none;
+    border-radius: 0;
+  }
+  
+  .smart-grid-container .ag-header {
+    font-size: 12px;
+  }
+  
+  .smart-grid-container .ag-cell {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
