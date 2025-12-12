@@ -3,5 +3,5 @@ services:
     name: verv-bms-api
     runtime: node
     region: oregon
-    buildCommand: npm install --legacy-peer-deps --prefix apps/api && npm run build --prefix apps/api
-    startCommand: npm start --prefix apps/api
+    buildCommand: cd src/apps/api && npm install && npm run build
+    startCommand: cd src/apps/api && npm start
