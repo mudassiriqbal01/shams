@@ -6,12 +6,5 @@ services:
     buildCommand: npm install && npm run build:api
     startCommand: cd apps/api && npm start
     healthCheckPath: /api/health
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-      - key: NODE_ENV
-        value: production
     autoDeploy: true
     branch: main
