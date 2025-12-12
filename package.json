@@ -1,0 +1,24 @@
+{
+  "name": "verv-bms",
+  "version": "1.0.0",
+  "description": "VERV BMS - Business Management System",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "install": "npm install",
+    "build": "npm run build --workspaces",
+    "build:api": "cd apps/api && npm install && npm run build",
+    "build:web": "cd apps/web && npm install && npm run build",
+    "start:api": "cd apps/api && npm start",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "test": "npm test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

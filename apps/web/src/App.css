@@ -1,0 +1,15 @@
+.App {
+  text-align: center;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.App h1 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.App p {
+  color: #666;
+  font-size: 1.1rem;
+}

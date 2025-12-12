@@ -1,24 +1,27 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && npm run build",
+  "buildCommand": "npm install && cd apps/web && npm run build",
   "outputDirectory": "apps/web/dist",
-  "framework": "create-react-app",
+  "framework": "react",
+  "env": {
+    "REACT_APP_API_URL": "@api_url"
+  },
+  "envVars": {
+    "api_url": "https://api-url-here"
+  },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:path((?!api).*)",
       "destination": "/index.html"
     }
   ],
-  "env": {
-    "REACT_APP_API_URL": "https://api-url-here"
-  },
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
-          "key": "Color-Scheme",
-          "value": "dark"
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
       ]
     }
