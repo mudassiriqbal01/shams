@@ -3,5 +3,5 @@ services:
     name: verv-bms-api
     runtime: node
     region: oregon
-    buildCommand: npm install && npm run build --workspace=src/apps/api
+    buildCommand: npm ci --workspaces && npm run build --workspace=src/apps/api
     startCommand: cd src/apps/api && npm start
