@@ -3,12 +3,6 @@
   "buildCommand": "npm install && cd apps/web && npm run build",
   "outputDirectory": "apps/web/dist",
   "framework": "react",
-  "env": {
-    "REACT_APP_API_URL": "@api_url"
-  },
-  "envVars": {
-    "api_url": "https://api-url-here"
-  },
   "rewrites": [
     {
       "source": "/:path((?!api).*)",
